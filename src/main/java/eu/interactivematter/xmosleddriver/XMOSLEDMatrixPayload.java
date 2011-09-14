@@ -12,8 +12,8 @@ import java.io.IOException;
  * User: marcus
  */
 public class XMOSLEDMatrixPayload {
-  private static final int MAX_PAYLOAD_SIZE = 1500;
-  private static final String MAGIC_STRING = "XMOS";
+  public static final int MAX_PAYLOAD_SIZE = 1500;
+  public static final String MAGIC_STRING = "XMOS";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XMOSLEDMatrixPayload.class);
 
