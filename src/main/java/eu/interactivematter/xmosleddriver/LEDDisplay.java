@@ -10,7 +10,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,8 +32,16 @@ public class LEDDisplay {
   private static final Logger LOGGER = LoggerFactory.getLogger(LEDDisplay.class);
 
   DatagramSocket outputSocket;
+  List<Inet4Address> localAdresses;
 
   public LEDDisplay() {
+    //retrieve the local adresses
+    try {
+      localAdresses = getLocalAddresses();
+    }
+    catch (SocketException e) {
+      throw new DisplayException("Unable to get the local network adresses!");
+    }
     try {
       outputSocket = new DatagramSocket();
     }
@@ -42,17 +50,35 @@ public class LEDDisplay {
       LOGGER.error(MSG, e);
       throw new DisplayException(MSG, e);
     }
+    LEDDisplayListener listener = new LEDDisplayListener();
   }
 
   public void configureDisplays() {
-    XMOSLEDMatrixPayload payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_ID);
-    sendXMOSPackage(payload);
+    for (Inet4Address localAddress : localAdresses) {
+      //construct a broadcast adress for the adresss
+      byte[] addressBytes = localAddress.getAddress();
+      //we can assume it is a 4 byte adress since it is IP4
+      //and create a broadcast address from it
+      addressBytes[2] = (byte) 0xff;
+      addressBytes[3] = (byte) 0xff;
+      InetAddress broadcastAddress = null;
+      try {
+        broadcastAddress = InetAddress.getByAddress(addressBytes);
+      }
+      catch (UnknownHostException e) {
+        LOGGER.error("I cannot get an address for the address {} - this is strange, ignoring the address", e);
+      }
+      //now send a autoconfigure package to any ip address
+      XMOSLEDMatrixPayload payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_ID);
+      sendXMOSPackage(payload, broadcastAddress);
+      //TODO wait a bit and see who answers
+    }
 
   }
 
-  private void sendXMOSPackage(XMOSLEDMatrixPayload payload) {
+  private void sendXMOSPackage(XMOSLEDMatrixPayload payload, InetAddress address) {
     byte[] udpPacket = payload.getPayloadAsBytes();
-    DatagramPacket packet = new DatagramPacket(udpPacket, udpPacket.length);
+    DatagramPacket packet = new DatagramPacket(udpPacket, udpPacket.length, address, PORT_XMOS);
     try {
       outputSocket.send(packet);
     }
@@ -61,8 +87,9 @@ public class LEDDisplay {
     }
   }
 
-  public InetAddress[] getLocalAddresses() throws SocketException {
-    List<InetAddress> localAddresses = new LinkedList<InetAddress>();
+
+  public List<Inet4Address> getLocalAddresses() throws SocketException {
+    List<Inet4Address> localAddresses = new LinkedList<Inet4Address>();
     Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
     while (interfaces.hasMoreElements()) {
       NetworkInterface networkInterface = interfaces.nextElement();
@@ -73,7 +100,7 @@ public class LEDDisplay {
           final InetAddress inetAddress = addresses.nextElement();
           if (inetAddress instanceof Inet4Address) {
             LOGGER.debug("Found Address {} for {}.", inetAddress, networkInterface.getDisplayName());
-            localAddresses.add(inetAddress);
+            localAddresses.add((Inet4Address) inetAddress);
           }
           else {
             LOGGER.info("Address {} for {} will be ignored since the XMOS Led Tile can only work with IP4", inetAddress, networkInterface.getDisplayName());
@@ -85,7 +112,6 @@ public class LEDDisplay {
       }
     }
     //copy over the addresses to the result list
-    ArrayList<InetAddress> list = new ArrayList<InetAddress>(localAddresses);
-    return list.toArray(new InetAddress[list.size()]);
+    return localAddresses;
   }
 }

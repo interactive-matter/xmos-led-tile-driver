@@ -23,7 +23,7 @@ public class LEDDisplayListener {
   public LEDDisplayListener() {
     listener = new UPDListener();
     listenerThread = new Thread(listener);
-    listenerThread.run();
+    listenerThread.start();
   }
 
   private synchronized void addPacket(DatagramPacket packet) {

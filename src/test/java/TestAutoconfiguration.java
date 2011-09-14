@@ -2,8 +2,9 @@ import eu.interactivematter.xmosleddriver.LEDDisplay;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.net.SocketException;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -23,7 +24,11 @@ public class TestAutoconfiguration {
 
   @Test
   public void testLocalAddressResolver() throws SocketException {
-    InetAddress[] addresses = display.getLocalAddresses();
-    assertThat(addresses.length, greaterThan(0));
+    List<Inet4Address> addresses = display.getLocalAddresses();
+    assertThat(addresses.size(), greaterThan(0));
   }
+
+  //TODO test if we can succesfully retrieve our own packages
+
+  //TODO test if at least one XC3 is connected
 }
