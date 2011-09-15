@@ -10,6 +10,11 @@ import java.io.IOException;
 /**
  * Represents the payload of the XMOS Led Tile UDP packages.
  * <strong>this class will most likely change massively during the development</strong>
+ * <p/>
+ * Copyright (c) 2011, Interactive Matter, Marcus Nowotny, All rights reserved
+ * This software is freely distributable under a derivative of the
+ * University of Illinois/NCSA Open Source License posted in
+ * LICENSE.txt and at <http://github.xcore.com/>
  */
 public class XMOSLedTilePacketPayload {
   public static final int MAX_PAYLOAD_SIZE = 1500;

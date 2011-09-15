@@ -15,7 +15,11 @@ import java.util.Enumeration;
 
 /**
  * This class represents a led matrix consisting of several XMOS kits with the led matrix source code.
- * User: marcus
+ * <p/>
+ * Copyright (c) 2011, Interactive Matter, Marcus Nowotny, All rights reserved
+ * This software is freely distributable under a derivative of the
+ * University of Illinois/NCSA Open Source License posted in
+ * LICENSE.txt and at <http://github.xcore.com/>
  */
 public class XMOSLedTileDriver {
   private static short AUTOCONFIGURATION_ID = 0x08;
