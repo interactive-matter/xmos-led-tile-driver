@@ -1,4 +1,4 @@
-import eu.interactivematter.xmosleddriver.XMOSLedTileDriver;
+import eu.interactivematter.xmosledtiledriver.XMOSLedTileDriver;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

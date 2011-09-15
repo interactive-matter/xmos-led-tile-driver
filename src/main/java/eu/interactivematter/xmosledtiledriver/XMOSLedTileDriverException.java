@@ -1,4 +1,4 @@
-package eu.interactivematter.xmosleddriver;
+package eu.interactivematter.xmosledtiledriver;
 
 /**
  * Telekom .COM Relaunch 2011

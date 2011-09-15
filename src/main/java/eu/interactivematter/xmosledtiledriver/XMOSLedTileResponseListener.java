@@ -1,4 +1,4 @@
-package eu.interactivematter.xmosleddriver;
+package eu.interactivematter.xmosledtiledriver;
 
 import org.slf4j.LoggerFactory;
 
