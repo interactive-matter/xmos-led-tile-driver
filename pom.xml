@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>eu.interactive-matter</groupId>
-  <artifactId>xmos-led-driver</artifactId>
+  <artifactId>xmos-led-tile-driver</artifactId>
   <version>1.0</version>
 
   <properties>
