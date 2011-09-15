@@ -37,7 +37,7 @@ public class XMOSLedTileResponseListener {
 
   private class UPDListener implements Runnable {
 
-    private static final String MAGIC_STRING = XMOSLEDMatrixPayload.MAGIC_STRING;
+    private static final String MAGIC_STRING = XMOSLedTilePacketPayload.MAGIC_STRING;
     private DatagramSocket socket;
     private boolean running = true;
 
@@ -58,7 +58,7 @@ public class XMOSLedTileResponseListener {
       while (running) {
         try {
           //create a buffer for the datagram packet
-          byte[] buf = new byte[XMOSLEDMatrixPayload.MAX_PAYLOAD_SIZE];
+          byte[] buf = new byte[XMOSLedTilePacketPayload.MAX_PAYLOAD_SIZE];
           //receive a packet
           DatagramPacket packet = new DatagramPacket(buf, buf.length);
           socket.receive(packet);

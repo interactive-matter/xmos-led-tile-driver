@@ -98,7 +98,7 @@ public class XMOSLedTileDriver {
     }
     LOGGER.info("Sending autoconfiguration package to broadcast address {}", broadcastAddress);
     //now send a autoconfigure package to the broadcast address
-    XMOSLEDMatrixPayload payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_ID);
+    XMOSLedTilePacketPayload payload = new XMOSLedTilePacketPayload(AUTOCONFIGURATION_ID);
     sendXMOSPackage(payload, broadcastAddress, true);
     //wait the specified wait time
     synchronized (this) {
@@ -111,7 +111,7 @@ public class XMOSLedTileDriver {
     }
     //and send the end of auto configuration package
     LOGGER.info("Sending end of autocofiguration to {}", broadcastAddress);
-    payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_END);
+    payload = new XMOSLedTilePacketPayload(AUTOCONFIGURATION_END);
     sendXMOSPackage(payload, broadcastAddress, true);
   }
 
@@ -122,7 +122,7 @@ public class XMOSLedTileDriver {
    * @param address   the address where the packet is sent to
    * @param broadcast is this a broadcast address or not
    */
-  private void sendXMOSPackage(XMOSLEDMatrixPayload payload, InetAddress address, boolean broadcast) {
+  private void sendXMOSPackage(XMOSLedTilePacketPayload payload, InetAddress address, boolean broadcast) {
     LOGGER.debug("Sending package with id {} to {}", payload.getMessageId(), address);
     byte[] udpPacket = payload.getPayloadAsBytes();
     DatagramPacket packet = new DatagramPacket(udpPacket, udpPacket.length, address, XMOS_PORT);

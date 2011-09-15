@@ -8,25 +8,35 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Telekom .COM Relaunch 2011
- * User: marcus
+ * Represents the payload of the XMOS Led Tile UDP packages.
+ * <strong>this class will most likely change massively during the development</strong>
  */
-public class XMOSLEDMatrixPayload {
+public class XMOSLedTilePacketPayload {
   public static final int MAX_PAYLOAD_SIZE = 1500;
   public static final String MAGIC_STRING = "XMOS";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(XMOSLEDMatrixPayload.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(XMOSLedTilePacketPayload.class);
 
   private short messageId = 0;
 
   private ByteArrayOutputStream payloadStream = new ByteArrayOutputStream(MAX_PAYLOAD_SIZE);
   private DataOutputStream dataStream = new DataOutputStream(payloadStream);
 
-  public XMOSLEDMatrixPayload(short messageId) {
+  /**
+   * create payload for the given message id
+   *
+   * @param messageId
+   */
+  public XMOSLedTilePacketPayload(short messageId) {
     this.messageId = messageId;
     //all messages start with the magic word 'xmos'
   }
 
+  /**
+   * get the UDP payload as byte array to directly put it into an UDP package
+   *
+   * @return
+   */
   public byte[] getPayloadAsBytes() {
     ByteArrayOutputStream udpByteStream = new ByteArrayOutputStream();
     DataOutputStream updDataStream = new DataOutputStream(udpByteStream);
@@ -48,13 +58,12 @@ public class XMOSLEDMatrixPayload {
     }
   }
 
+  /**
+   * the message id
+   *
+   * @return the message ID
+   */
   public short getMessageId() {
     return messageId;
-  }
-
-  public void setMessageId(short messageId) {
-    this.messageId = messageId;
-    throw new XMOSLedTileDriverException("not implemented yet");
-    //TODO set message id in output stream
   }
 }
