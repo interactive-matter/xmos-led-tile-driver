@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.net.Inet4Address;
 import java.net.SocketException;
-import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -24,8 +23,8 @@ public class TestAutoconfiguration {
 
   @Test
   public void testLocalAddressResolver() throws SocketException {
-    List<Inet4Address> addresses = display.getLocalAddresses();
-    assertThat(addresses.size(), greaterThan(0));
+    Inet4Address address = display.getLocalAddresses();
+    assertThat(address, notNullValue());
   }
 
   @Test

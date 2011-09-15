@@ -5,10 +5,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Inet4Address;
 import java.net.SocketException;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Telekom .COM Relaunch 2011
@@ -22,7 +20,7 @@ public class LEDDisplayListener {
   private UPDListener listener;
   private Thread listenerThread;
 
-  public LEDDisplayListener(List<Inet4Address> localAddresses) {
+  public LEDDisplayListener() {
     listener = new UPDListener();
     listenerThread = new Thread(listener);
     listenerThread.start();
