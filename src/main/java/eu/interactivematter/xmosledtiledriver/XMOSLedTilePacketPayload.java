@@ -71,4 +71,14 @@ public class XMOSLedTilePacketPayload {
   public short getMessageId() {
     return messageId;
   }
+
+  /**
+   * returns the current data stream to encode data. It is most safe to overwrite the getPayloadAsBytes() method
+   * and write to this stream and then return the value of super.
+   *
+   * @return the current payload data stream.
+   */
+  protected DataOutputStream getDataStream() {
+    return dataStream;
+  }
 }
