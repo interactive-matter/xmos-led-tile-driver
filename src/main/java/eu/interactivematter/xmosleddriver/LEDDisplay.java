@@ -68,6 +68,7 @@ public class LEDDisplay {
       catch (UnknownHostException e) {
         LOGGER.error("I cannot get an address for the address {} - this is strange, ignoring the address", e);
       }
+      LOGGER.info("Sending autoconfiguration package to broadcast address {}", broadcastAddress);
       //now send a autoconfigure package to any ip address
       XMOSLEDMatrixPayload payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_ID);
       sendXMOSPackage(payload, broadcastAddress);
@@ -77,6 +78,7 @@ public class LEDDisplay {
   }
 
   private void sendXMOSPackage(XMOSLEDMatrixPayload payload, InetAddress address) {
+    LOGGER.debug("Sending package with id {} to {}", payload.getMessageId(), address);
     byte[] udpPacket = payload.getPayloadAsBytes();
     DatagramPacket packet = new DatagramPacket(udpPacket, udpPacket.length, address, PORT_XMOS);
     try {

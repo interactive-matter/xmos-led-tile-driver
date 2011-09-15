@@ -28,6 +28,14 @@ public class TestAutoconfiguration {
     assertThat(addresses.size(), greaterThan(0));
   }
 
+  @Test
+  public void testAutoconfiguration() {
+    display.configureDisplays();
+    while (true) {
+      ;
+    }
+  }
+
   //TODO test if we can succesfully retrieve our own packages
 
   //TODO test if at least one XC3 is connected
