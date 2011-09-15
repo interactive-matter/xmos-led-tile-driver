@@ -1,6 +1,7 @@
 package eu.interactivematter.xmosledtiledriver;
 
 import eu.interactivematter.xmosledtiledriver.packets.DisplayDataPacket;
+import eu.interactivematter.xmosledtiledriver.packets.LatchPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +137,8 @@ public class XMOSLedTileDriver {
     DisplayDataPacket dataPacket = new DisplayDataPacket();
     dataPacket.setPixelData(pixelPointer, pixelData);
     sendXMOSPackage(dataPacket, address, false);
+    LatchPacket latchPacket = new LatchPacket();
+    sendXMOSPackage(latchPacket, address, false);
   }
 
   /**
