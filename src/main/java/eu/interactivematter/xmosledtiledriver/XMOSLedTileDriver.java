@@ -1,5 +1,6 @@
 package eu.interactivematter.xmosledtiledriver;
 
+import eu.interactivematter.xmosledtiledriver.packets.DisplayDataPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,6 +129,13 @@ public class XMOSLedTileDriver {
     LOGGER.info("Sending end of autocofiguration to {}", broadcastAddress);
     payload = new XMOSLedTilePacketPayload(AUTOCONFIGURATION_END);
     sendXMOSPackage(payload, broadcastAddress, true);
+  }
+
+  //TODO this is no nice interface!
+  public void setPixelData(short pixelPointer, byte[] pixelData, InetAddress address) {
+    DisplayDataPacket dataPacket = new DisplayDataPacket();
+    dataPacket.setPixelData(pixelPointer, pixelData);
+    sendXMOSPackage(dataPacket, address, false);
   }
 
   /**
