@@ -17,7 +17,7 @@ import java.util.Enumeration;
  * This class represents a led matrix consisting of several XMOS kits with the led matrix source code.
  * User: marcus
  */
-public class LEDDisplay {
+public class XMOSLedTileDriver {
   private static short AUTOCONFIGURATION_ID = 0x08;
   private static short AUTOCONFIGURATION_END = 0x0A;
   /**
@@ -34,27 +34,27 @@ public class LEDDisplay {
   /**
    * just a logger
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(LEDDisplay.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(XMOSLedTileDriver.class);
 
   DatagramSocket outputSocket;
   Inet4Address localAddress;
-  private LEDDisplayListener listener;
+  private XMOSLedTileResponseListener listener;
 
   /**
    * Create the XMOS LED Tile Display driver.
    * Keep in mind that at least one network address must be in the 192.168.x.y range. Preferably 192.168.254.254.
    */
-  public LEDDisplay() {
+  public XMOSLedTileDriver() {
     //retrieve the local address
     try {
       //the address is automatically assigned to localAddress (TODO lil' bit bad style)
       getLocalAddress();
     }
     catch (SocketException e) {
-      throw new DisplayException("Unable to get the local network address", e);
+      throw new XMOSLedTileDriverException("Unable to get the local network address", e);
     }
     if (localAddress == null) {
-      throw new DisplayException("No suitable local address in range 192.168.x.y found");
+      throw new XMOSLedTileDriverException("No suitable local address in range 192.168.x.y found");
     }
     try {
       //create a socket to drive the
@@ -63,10 +63,10 @@ public class LEDDisplay {
     catch (SocketException e) {
       final String MSG = "Unable to open datagram socket.";
       LOGGER.error(MSG, e);
-      throw new DisplayException(MSG, e);
+      throw new XMOSLedTileDriverException(MSG, e);
     }
     //create a listener to receive the return packets from the display
-    listener = new LEDDisplayListener();
+    listener = new XMOSLedTileResponseListener();
   }
 
   /**
@@ -132,7 +132,7 @@ public class LEDDisplay {
     }
     catch (IOException e) {
       LOGGER.error("Unable to send package to {}: {}", address, e.getMessage());
-      //throw new DisplayException("Unable to send the data package", e);
+      //throw new XMOSLedTileDriverException("Unable to send the data package", e);
     }
   }
 

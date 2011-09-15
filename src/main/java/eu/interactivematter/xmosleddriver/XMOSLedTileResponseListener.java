@@ -12,15 +12,15 @@ import java.util.LinkedList;
  * Telekom .COM Relaunch 2011
  * User: marcus
  */
-public class LEDDisplayListener {
+public class XMOSLedTileResponseListener {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(LEDDisplayListener.class);
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(XMOSLedTileResponseListener.class);
 
   private LinkedList<DatagramPacket> packets = new LinkedList<DatagramPacket>();
   private UPDListener listener;
   private Thread listenerThread;
 
-  public LEDDisplayListener() {
+  public XMOSLedTileResponseListener() {
     listener = new UPDListener();
     listenerThread = new Thread(listener);
     listenerThread.start();
@@ -46,7 +46,7 @@ public class LEDDisplayListener {
         socket = new DatagramSocket();
       }
       catch (SocketException e) {
-        throw new DisplayException("Unable to create listening socket", e);
+        throw new XMOSLedTileDriverException("Unable to create listening socket", e);
       }
     }
 

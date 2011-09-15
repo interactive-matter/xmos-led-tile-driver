@@ -39,12 +39,12 @@ public class XMOSLEDMatrixPayload {
       udpByteStream.flush();
 
       if (payloadStream.size() > MAX_PAYLOAD_SIZE) {
-        throw new DisplayException("The output stream can only be " + MAX_PAYLOAD_SIZE + " bytes long");
+        throw new XMOSLedTileDriverException("The output stream can only be " + MAX_PAYLOAD_SIZE + " bytes long");
       }
       return udpByteStream.toByteArray();
     }
     catch (IOException e) {
-      throw new DisplayException("unable to construct UDP data", e);
+      throw new XMOSLedTileDriverException("unable to construct UDP data", e);
     }
   }
 
@@ -54,7 +54,7 @@ public class XMOSLEDMatrixPayload {
 
   public void setMessageId(short messageId) {
     this.messageId = messageId;
-    throw new DisplayException("not implemented yet");
+    throw new XMOSLedTileDriverException("not implemented yet");
     //TODO set message id in output stream
   }
 }

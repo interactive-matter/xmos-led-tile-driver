@@ -1,4 +1,4 @@
-import eu.interactivematter.xmosleddriver.LEDDisplay;
+import eu.interactivematter.xmosleddriver.XMOSLedTileDriver;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,11 +17,11 @@ import static org.junit.Assert.assertThat;
 public class TestAutoconfiguration {
   Logger LOGGER = LoggerFactory.getLogger(TestAutoconfiguration.class);
 
-  private LEDDisplay display;
+  private XMOSLedTileDriver display;
 
   @Before
   public void setup() {
-    display = new LEDDisplay();
+    display = new XMOSLedTileDriver();
   }
 
   @Test
