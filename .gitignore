@@ -1,6 +1,10 @@
+#maven targets
+target/
+
 #idea stuff
 .idea
 *.iml
+
 
 #mac stuff 
 .DS_Store
