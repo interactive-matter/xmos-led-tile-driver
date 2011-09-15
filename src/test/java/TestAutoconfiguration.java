@@ -1,6 +1,8 @@
 import eu.interactivematter.xmosleddriver.LEDDisplay;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Inet4Address;
 import java.net.SocketException;
@@ -13,6 +15,7 @@ import static org.junit.Assert.assertThat;
  * User: marcus
  */
 public class TestAutoconfiguration {
+  Logger LOGGER = LoggerFactory.getLogger(TestAutoconfiguration.class);
 
   private LEDDisplay display;
 
@@ -23,14 +26,13 @@ public class TestAutoconfiguration {
 
   @Test
   public void testLocalAddressResolver() throws SocketException {
-    Inet4Address address = display.getLocalAddresses();
+    Inet4Address address = display.getLocalAddress();
     assertThat(address, notNullValue());
   }
 
   @Test
   public void testAutoconfiguration() {
     display.configureDisplays();
-    //TODO test if at least one XC3 is connected
+    //nothing else to test here since the XMOS devices are so quiet
   }
-
 }

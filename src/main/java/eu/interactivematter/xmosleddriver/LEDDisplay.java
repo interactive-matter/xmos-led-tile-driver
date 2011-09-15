@@ -25,7 +25,7 @@ public class LEDDisplay {
    */
   public static final int XMOS_PORT = 306;
   //default wait time for autoconfigure
-  private static final int DEFAULT_WAIT_TIME = 10 * 1000;
+  private static final int DEFAULT_WAIT_TIME = 3 * 1000;
   /**
    * IP4 address prefix of the led tile adderss space
    */
@@ -40,15 +40,24 @@ public class LEDDisplay {
   Inet4Address localAddress;
   private LEDDisplayListener listener;
 
+  /**
+   * Create the XMOS LED Tile Display driver.
+   * Keep in mind that at least one network address must be in the 192.168.x.y range. Preferably 192.168.254.254.
+   */
   public LEDDisplay() {
-    //retrieve the local adresses
+    //retrieve the local address
     try {
-      localAddress = getLocalAddresses();
+      //the address is automatically assigned to localAddress (TODO lil' bit bad style)
+      getLocalAddress();
     }
     catch (SocketException e) {
-      throw new DisplayException("Unable to get the local network adresses!");
+      throw new DisplayException("Unable to get the local network address", e);
+    }
+    if (localAddress == null) {
+      throw new DisplayException("No suitable local address in range 192.168.x.y found");
     }
     try {
+      //create a socket to drive the
       outputSocket = new DatagramSocket();
     }
     catch (SocketException e) {
@@ -56,13 +65,23 @@ public class LEDDisplay {
       LOGGER.error(MSG, e);
       throw new DisplayException(MSG, e);
     }
+    //create a listener to receive the return packets from the display
     listener = new LEDDisplayListener();
   }
 
+  /**
+   * Start the auto configure process of the led tiles
+   */
   public void configureDisplays() {
     configureDisplays(DEFAULT_WAIT_TIME);
   }
 
+  /**
+   * Start the auto configure process of the led tiles with a specified timeout between the initialization of the config
+   * routine and the finishing of the config (AC_1 vs. AC_3 packages).
+   *
+   * @param waittime after which time the AC_3 package should be sent (in ms);
+   */
   public void configureDisplays(int waittime) {
     //construct a broadcast adress for the adresss
     byte[] addressBytes = localAddress.getAddress();
@@ -78,9 +97,10 @@ public class LEDDisplay {
       LOGGER.error("I cannot get an address for the address {} - this is strange, ignoring the address", e);
     }
     LOGGER.info("Sending autoconfiguration package to broadcast address {}", broadcastAddress);
-    //now send a autoconfigure package to any ip address
+    //now send a autoconfigure package to the broadcast address
     XMOSLEDMatrixPayload payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_ID);
     sendXMOSPackage(payload, broadcastAddress, true);
+    //wait the specified wait time
     synchronized (this) {
       try {
         this.wait(waittime);
@@ -89,11 +109,19 @@ public class LEDDisplay {
         LOGGER.error("Got somehow interrupted while waiting - strange", e);
       }
     }
+    //and send the end of auto configuration package
     LOGGER.info("Sending end of autocofiguration to {}", broadcastAddress);
     payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_END);
     sendXMOSPackage(payload, broadcastAddress, true);
   }
 
+  /**
+   * A helper routine to send the packages. It will change in the future.
+   *
+   * @param payload   the payload of the package
+   * @param address   the address where the packet is sent to
+   * @param broadcast is this a broadcast address or not
+   */
   private void sendXMOSPackage(XMOSLEDMatrixPayload payload, InetAddress address, boolean broadcast) {
     LOGGER.debug("Sending package with id {} to {}", payload.getMessageId(), address);
     byte[] udpPacket = payload.getPayloadAsBytes();
@@ -109,39 +137,48 @@ public class LEDDisplay {
   }
 
 
-  public Inet4Address getLocalAddresses() throws SocketException {
-    Inet4Address localAddress = null;
-    Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-    while (interfaces.hasMoreElements()) {
-      NetworkInterface networkInterface = interfaces.nextElement();
-      if (!networkInterface.isLoopback()) {
-        LOGGER.debug("Getting addresses for {}", networkInterface.getDisplayName());
-        Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
-        while (addresses.hasMoreElements()) {
-          final InetAddress inetAddress = addresses.nextElement();
-          if (inetAddress instanceof Inet4Address) {
-            Inet4Address inet4Address = (Inet4Address) inetAddress;
-            byte[] adressBytes = inet4Address.getAddress();
-            //we can safely assume that we have 4 bytes
-            if (adressBytes[0] == XMOS_ADRESS_RPREFIX[0] && adressBytes[1] == XMOS_ADRESS_RPREFIX[1]) {
-              LOGGER.info("Found address {} for {} as XMOS Led Tile sub net address.", inetAddress, networkInterface.getDisplayName());
-              localAddress = inet4Address;
-              break;
+  public Inet4Address getLocalAddress() throws SocketException {
+    //if we have not retrieved the address previously
+    if (localAddress == null) {
+      //get all the network interfaces
+      Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+      //for each network interface
+      while (interfaces.hasMoreElements()) {
+        NetworkInterface networkInterface = interfaces.nextElement();
+        //if it is no loopback interface (we will never reach someone over this
+        if (!networkInterface.isLoopback()) {
+          //get the ip addresses of that interface will most often be (IP4 & IP6 addresses)
+          LOGGER.debug("Getting addresses for {}", networkInterface.getDisplayName());
+          //for each address
+          Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+          while (addresses.hasMoreElements()) {
+            final InetAddress inetAddress = addresses.nextElement();
+            //check if it is an IP4 address
+            if (inetAddress instanceof Inet4Address) {
+              Inet4Address inet4Address = (Inet4Address) inetAddress;
+              //check if it is in the 192.168.x.y target range
+              byte[] adressBytes = inet4Address.getAddress();
+              //we can safely assume that we have 4 bytes
+              if (adressBytes[0] == XMOS_ADRESS_RPREFIX[0] && adressBytes[1] == XMOS_ADRESS_RPREFIX[1]) {
+                LOGGER.info("Found address {} for {} as XMOS Led Tile sub net address.", inetAddress, networkInterface.getDisplayName());
+                localAddress = inet4Address;
+                break;
+              }
+              else {
+                LOGGER.info("Address {} of {} is not suitable for XMOS Led Tile application", inet4Address, networkInterface.getDisplayName());
+              }
             }
             else {
-              LOGGER.info("Address {} of {} is not suitable for XMOS Led Tile application", inet4Address, networkInterface.getDisplayName());
+              LOGGER.info("Address {} for {} will be ignored since the XMOS Led Tile can only work with IP4", inetAddress, networkInterface.getDisplayName());
             }
           }
-          else {
-            LOGGER.info("Address {} for {} will be ignored since the XMOS Led Tile can only work with IP4", inetAddress, networkInterface.getDisplayName());
-          }
+        }
+        else {
+          LOGGER.info("Network interface {} will be ignored since it is a loopback interface", networkInterface.getDisplayName());
         }
       }
-      else {
-        LOGGER.info("Network interface {} will be ignored since it is a loopback interface", networkInterface.getDisplayName());
-      }
     }
-    //copy over the addresses to the result list
+    //return the known local address for this dirver
     return localAddress;
   }
 }
