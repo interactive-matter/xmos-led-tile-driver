@@ -22,8 +22,19 @@ import java.util.Enumeration;
  * LICENSE.txt and at <http://github.xcore.com/>
  */
 public class XMOSLedTileDriver {
-  private static short AUTOCONFIGURATION_ID = 0x08;
-  private static short AUTOCONFIGURATION_END = 0x0A;
+  //TODO migrate to enumeration
+  public static short VERSION = 0x01;
+  public static short DATA = 0x02;
+  public static short LATCH = 0x03;
+  public static short GAMMAADJ = 0x04;
+  public static short INTENSITYADJ = 0x05;
+  public static short SINTENSITYADJ = 0x06;
+  public static short RESET = 0x07;
+  public static short AUTOCONFIGURATION_ID = 0x08;
+  public static short AUTOCONFIGURATION_END = 0x0A;
+  public static short SINTENSITYADJ_PIX = 0x0C;
+  //TODO disabled in current version - will it come back??
+  public static short CHANGEDRIVER = 0x0D;
   /**
    * the port number where the XMOS software is listening
    */
