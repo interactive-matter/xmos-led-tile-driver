@@ -5,8 +5,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.SocketException;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Telekom .COM Relaunch 2011
@@ -20,7 +22,7 @@ public class LEDDisplayListener {
   private UPDListener listener;
   private Thread listenerThread;
 
-  public LEDDisplayListener() {
+  public LEDDisplayListener(List<Inet4Address> localAddresses) {
     listener = new UPDListener();
     listenerThread = new Thread(listener);
     listenerThread.start();
@@ -62,6 +64,7 @@ public class LEDDisplayListener {
           //receive a packet
           DatagramPacket packet = new DatagramPacket(buf, buf.length);
           socket.receive(packet);
+          LOGGER.debug("Packet received {}", packet);
           //analyze the data if it is a XMOS packet
           byte[] data = packet.getData();
           //we must have at least XMOS + package ID

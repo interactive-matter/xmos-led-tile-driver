@@ -21,10 +21,13 @@ import java.util.List;
  */
 public class LEDDisplay {
   private static short AUTOCONFIGURATION_ID = 0x08;
+  private static short AUTOCONFIGURATION_END = 0x0A;
   /**
-   * THE port number where the XMOS software is listening
+   * the port number where the XMOS software is listening
    */
-  private static final int PORT_XMOS = 306;
+  public static final int XMOS_PORT = 306;
+  //default wait time for autoconfigure
+  private static final int DEFAULT_WAIT_TIME = 10 * 1000;
 
   /**
    * just a logger
@@ -50,10 +53,14 @@ public class LEDDisplay {
       LOGGER.error(MSG, e);
       throw new DisplayException(MSG, e);
     }
-    LEDDisplayListener listener = new LEDDisplayListener();
+    LEDDisplayListener listener = new LEDDisplayListener(localAdresses);
   }
 
   public void configureDisplays() {
+    configureDisplays(DEFAULT_WAIT_TIME);
+  }
+
+  public void configureDisplays(int waittime) {
     for (Inet4Address localAddress : localAdresses) {
       //construct a broadcast adress for the adresss
       byte[] addressBytes = localAddress.getAddress();
@@ -71,21 +78,33 @@ public class LEDDisplay {
       LOGGER.info("Sending autoconfiguration package to broadcast address {}", broadcastAddress);
       //now send a autoconfigure package to any ip address
       XMOSLEDMatrixPayload payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_ID);
-      sendXMOSPackage(payload, broadcastAddress);
-      //TODO wait a bit and see who answers
+      sendXMOSPackage(payload, broadcastAddress, true);
+      synchronized (this) {
+        try {
+          this.wait(waittime);
+        }
+        catch (InterruptedException e) {
+          LOGGER.error("Got somehow interrupted while waiting - strange", e);
+        }
+      }
+      LOGGER.info("Sending end of autocofiguration to {}", broadcastAddress);
+      payload = new XMOSLEDMatrixPayload(AUTOCONFIGURATION_END);
+      sendXMOSPackage(payload, broadcastAddress, true);
     }
 
   }
 
-  private void sendXMOSPackage(XMOSLEDMatrixPayload payload, InetAddress address) {
+  private void sendXMOSPackage(XMOSLEDMatrixPayload payload, InetAddress address, boolean broadcast) {
     LOGGER.debug("Sending package with id {} to {}", payload.getMessageId(), address);
     byte[] udpPacket = payload.getPayloadAsBytes();
-    DatagramPacket packet = new DatagramPacket(udpPacket, udpPacket.length, address, PORT_XMOS);
+    DatagramPacket packet = new DatagramPacket(udpPacket, udpPacket.length, address, XMOS_PORT);
     try {
+      outputSocket.setBroadcast(broadcast);
       outputSocket.send(packet);
     }
     catch (IOException e) {
-      throw new DisplayException("Unable to send the data package", e);
+      LOGGER.error("Unable to send package to {}: {}", address, e.getMessage());
+      //throw new DisplayException("Unable to send the data package", e);
     }
   }
 
