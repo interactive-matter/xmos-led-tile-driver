@@ -17,6 +17,7 @@ import static org.junit.Assert.assertThat;
 public class TestAutoconfiguration {
   Logger LOGGER = LoggerFactory.getLogger(TestAutoconfiguration.class);
 
+/* TODO autoconfiguration is disabled until we get it up and running again
   private XMOSLedTileDriver display;
 
   @Before
@@ -35,4 +36,5 @@ public class TestAutoconfiguration {
     display.configureDisplays();
     //nothing else to test here since the XMOS devices are so quiet
   }
+ */
 }
