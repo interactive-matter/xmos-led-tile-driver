@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Represents the payload of the XMOS Led Tile UDP packages.
@@ -17,15 +19,15 @@ import java.io.IOException;
  * LICENSE.txt and at <http://github.xcore.com/>
  */
 public class XMOSLedTilePacketPayload {
-  public static final int MAX_PAYLOAD_SIZE = 1500;
+  public static final int MAX_PAYLOAD_SIZE = 1466;
   public static final String MAGIC_STRING = "XMOS";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XMOSLedTilePacketPayload.class);
 
   private short messageId = 0;
 
-  private ByteArrayOutputStream payloadStream = new ByteArrayOutputStream(MAX_PAYLOAD_SIZE);
-  private DataOutputStream dataStream = new DataOutputStream(payloadStream);
+  private byte[] payload = new byte[MAX_PAYLOAD_SIZE];
+  private ByteBuffer payloadBuffer = ByteBuffer.wrap(payload);
 
   /**
    * create payload for the given message id
@@ -33,8 +35,9 @@ public class XMOSLedTilePacketPayload {
    * @param messageId
    */
   public XMOSLedTilePacketPayload(short messageId) {
+    //switch the byte buffer to little endian for XMOS
+    payloadBuffer.order(ByteOrder.LITTLE_ENDIAN);
     this.messageId = messageId;
-    //all messages start with the magic word 'xmos'
   }
 
   /**
@@ -46,19 +49,19 @@ public class XMOSLedTilePacketPayload {
     ByteArrayOutputStream udpByteStream = new ByteArrayOutputStream();
     DataOutputStream updDataStream = new DataOutputStream(udpByteStream);
     try {
+      //all messages start with the magic word 'xmos'
       updDataStream.writeBytes(MAGIC_STRING);
       updDataStream.writeShort(messageId);
-      updDataStream.flush();
-      dataStream.flush();
-      payloadStream.writeTo(updDataStream);
+      updDataStream.write(payload);
       udpByteStream.flush();
 
-      if (payloadStream.size() > MAX_PAYLOAD_SIZE) {
+      /* this is handled internally??
+      if (payloadBuffer. > MAX_PAYLOAD_SIZE) {
         throw new XMOSLedTileDriverException("The output stream can only be " + MAX_PAYLOAD_SIZE + " bytes long");
       }
+      */
       return udpByteStream.toByteArray();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new XMOSLedTileDriverException("unable to construct UDP data", e);
     }
   }
@@ -78,7 +81,7 @@ public class XMOSLedTilePacketPayload {
    *
    * @return the current payload data stream.
    */
-  protected DataOutputStream getDataStream() {
-    return dataStream;
+  protected ByteBuffer getPayloadBuffer() {
+    return payloadBuffer;
   }
 }
